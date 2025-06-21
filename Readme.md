@@ -15,3 +15,8 @@ To get started with cairo projects and create a new project file on Cairo, be su
 Scarb build
 ```
 Scarb build help you compile your project.
+
+```
+Scarb test
+```
+Scarb test help you run test for your project
