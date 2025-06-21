@@ -1,34 +1,31 @@
 use starknet:: ContractAddress;
 
-trait ITestERC20<TContractState> {
+//This is how to create an interface for the contract
+#[starknet::interface] 
+pub trait ITestERC20<TContractState> {
     fn mint(ref self: TContractState, recipient: ContractAddress, amount: u256);
 }
 
-#[starknet::contract]
+//This is the entry point of the contract and not the main function
+#[starknet::contract] 
 mod TestERC20 {
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl}; /// this is how to use component in a starknet contract
-    use openzeppelin::access::ownable::OwnableComponent;
+
     use starknet:: ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);    
-    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent); /// this is how to use component in a starknet contract
 
     
     #[abi(embed_v0)]
     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>; /// this is how to implement the mixin functions of the component
-    #[abi(embed_v0)]
-    impl OwnableComponentImpl = OwnableComponent::OwnableImpl<ContractState>;
     impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>; /// this is how to implement the internal functions of the component
 
-
+    
 
     #[storage]
     struct Storage{
         #[substorage(v0)]
         erc20: ERC20Component::Storage,
-        #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
-
     }
 
     #[event]
@@ -36,8 +33,6 @@ mod TestERC20 {
     enum Event {
         #[flat]
         ERC20Event: ERC20Component::Event,
-        #[flat]
-        OwnableEvent: OwnableComponent::Event,
     }
 
 
@@ -53,6 +48,7 @@ mod TestERC20 {
         self.erc20.initializer("Tobtoken", "TBT");
     }
 
+    #[abi(embed_v0)]
     impl TestERC20Impl of super::ITestERC20<ContractState> {
         fn mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             self.erc20.mint(recipient, amount);
